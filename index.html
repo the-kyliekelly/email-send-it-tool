@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Send-It Tool</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=Work+Sans:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px 16px 48px;
+      background: #F0EBE3;
+      font-family: 'Work Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .kk-page {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* ── Component styles ── */
+    .kk { background: #F9F5EF; border-radius: 16px; overflow: hidden; font-family: 'Work Sans', sans-serif; }
+    .kk-head { background: #fff; padding: 30px 28px 24px; border-bottom: 3px solid #e579df; }
+    .kk-eyebrow { font-size: 9px; letter-spacing: 5px; text-transform: uppercase; color: #e579df; font-weight: 700; margin-bottom: 14px; }
+    .kk-title-line1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 800; font-style: normal; color: #111; display: block; line-height: 1.15; }
+    .kk-title-line2 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 800; font-style: italic; color: #e579df; display: block; line-height: 1.15; }
+    .kk-sub { font-size: 13px; color: #111; margin-top: 8px; font-weight: 600; line-height: 1.5; }
+    .kk-above { padding: 24px 28px 0; }
+    .kk-prog-wrap { background: #1e1b2e; border-radius: 12px; padding: 16px 20px 14px; margin-bottom: 16px; }
+    .kk-prog-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .kk-prog-label { font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+    .kk-prog-count { font-size: 13px; font-weight: 700; color: #4ade80; font-family: 'Work Sans', monospace; }
+    .kk-prog-bg { height: 6px; background: rgba(255,255,255,0.1); border-radius: 6px; }
+    .kk-prog-fill { height: 6px; background: #4ade80; border-radius: 6px; width: 0%; transition: width 0.4s ease; }
+    .kk-prog-context { background: #fdf0fd; border-left: 3px solid #e579df; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 26px; }
+    .kk-prog-context-label { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #e579df; margin-bottom: 4px; }
+    .kk-prog-context-text { font-size: 12px; color: #5a5048; line-height: 1.65; }
+    .kk-body { padding: 0 28px 24px; }
+    .kk-sec { margin-bottom: 26px; }
+    .kk-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #1a1a1a; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .kk-label::after { content: ''; flex: 1; height: 1px; background: #EDE8E0; }
+    .kk-label-meta { font-size: 10px; color: #bbb0a8; font-weight: 400; letter-spacing: 0; text-transform: none; }
+    .kk-community { background: #fff; border-radius: 12px; border: 1.5px solid #EDE8E0; padding: 20px 22px; margin-bottom: 26px; text-align: center; }
+    .kk-community-intro { font-size: 14px; color: #5a5048; line-height: 1.7; max-width: 460px; margin: 0 auto 16px; }
+    .kk-community-intro strong { color: #111; font-weight: 600; }
+    .kk-hidden { display: none; }
+    .kk-type-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; }
+    .kk-tcard { background: #fff; border: 1.5px solid #EDE8E0; border-radius: 10px; padding: 14px 11px; cursor: pointer; transition: all 0.15s; }
+    .kk-tcard:hover { border-color: #d4b8d0; }
+    .kk-tcard.sel { border: 2.5px solid #e579df; background: #fdf0fd; }
+    .kk-ticon { font-size: 15px; margin-bottom: 6px; }
+    .kk-tname { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+    .kk-tcard.sel .kk-tname { color: #9e2a9c; }
+    .kk-ttag { font-size: 11px; color: #9a9088; line-height: 1.4; margin-bottom: 8px; }
+    .kk-tcard.sel .kk-ttag { color: #b844b6; }
+    .kk-ttime { font-size: 10px; color: #c49ac0; background: #fce8fc; padding: 2px 7px; border-radius: 20px; display: inline-block; }
+    .kk-tcard.sel .kk-ttime { background: #f0c8ef; color: #8a1a88; }
+    .kk-angle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .kk-aitem { display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px; border-radius: 8px; border: 1.5px solid #EDE8E0; cursor: pointer; transition: all 0.15s; background: #fff; }
+    .kk-aitem:hover { border-color: #d4b8d0; background: #fdf8fd; }
+    .kk-aitem.sel { border: 2.5px solid #e579df; background: #fdf0fd; }
+    .kk-aradio { width: 16px; height: 16px; min-width: 16px; border-radius: 50%; border: 1.5px solid #ccc; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all 0.15s; }
+    .kk-aradio.sel { border-color: #e579df; background: #e579df; }
+    .kk-adot { width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; }
+    .kk-aradio.sel .kk-adot { opacity: 1; }
+    .kk-acontent { flex: 1; }
+    .kk-atext { font-size: 12px; color: #4a4540; line-height: 1.45; margin-bottom: 5px; }
+    .kk-aitem.sel .kk-atext { color: #1a1a1a; font-weight: 500; }
+    .kk-atimepill { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; color: #bbb0a8; background: #F9F5EF; padding: 2px 7px; border-radius: 20px; }
+    .kk-aitem.sel .kk-atimepill { background: #fce8fc; color: #9e2a9c; }
+    .kk-nudge { display: flex; align-items: flex-start; gap: 10px; background: #fff; border: 1.5px solid #EDE8E0; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+    .kk-nudge-text { font-size: 12px; color: #7a7068; line-height: 1.6; }
+    .kk-nudge-text strong { color: #1a1a1a; font-weight: 600; }
+    .kk-next-btn { background: #111; color: #fff; border: none; border-radius: 7px; padding: 11px 22px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Work Sans', sans-serif; transition: background 0.15s; margin-top: 4px; }
+    .kk-next-btn:hover { background: #2a2a2a; }
+    .kk-next-btn:disabled { background: #EDE8E0; color: #bbb0a8; cursor: not-allowed; }
+    .kk-guide { background: #F9F5EF; border: 1.5px solid #EDE8E0; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+    .kk-guide-intro { font-size: 13px; color: #5a5048; line-height: 1.7; margin-bottom: 16px; }
+    .kk-guide-intro strong { color: #1a1a1a; font-weight: 600; }
+    .kk-fw-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin-bottom: 14px; }
+    .kk-fw-card { background: #fff; border: 1.5px solid #EDE8E0; border-radius: 8px; padding: 12px 11px; }
+    .kk-fw-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+    .kk-fw-tag { font-size: 10px; font-weight: 700; color: #9e2a9c; background: #fce8fc; padding: 2px 8px; border-radius: 20px; }
+    .kk-fw-time { font-size: 10px; color: #bbb0a8; }
+    .kk-fw-hint { font-size: 11px; color: #4a4540; line-height: 1.6; }
+    .kk-guide-tips { font-size: 12px; color: #7a7068; line-height: 1.7; padding-top: 12px; border-top: 1px solid #EDE8E0; }
+    .kk-guide-tips strong { color: #1a1a1a; font-weight: 600; }
+    .kk-btns-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .kk-ghost-pink { background: none; border: 1.5px solid #e579df; border-radius: 7px; padding: 8px 14px; font-size: 12px; color: #9e2a9c; cursor: pointer; font-family: 'Work Sans', sans-serif; transition: all 0.15s; }
+    .kk-ghost-pink:hover { background: #fdf0fd; }
+    .kk-ex-box { display: none; background: #F9F5EF; border-left: 3px solid #e579df; border-radius: 0 8px 8px 0; padding: 16px; margin-bottom: 12px; }
+    .kk-ex-box.open { display: block; }
+    .kk-ex-slabel { font-size: 9px; color: #bbb0a8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; font-weight: 600; }
+    .kk-ex-stext { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; }
+    .kk-ex-body { font-size: 12px; color: #5a5048; line-height: 1.8; white-space: pre-line; }
+    .kk-ex-note { font-size: 11px; color: #e579df; font-style: italic; margin-top: 10px; }
+    .kk-subj-toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: #5a5048; cursor: pointer; background: #fff; border: 1.5px solid #EDE8E0; border-radius: 8px; padding: 10px 14px; width: 100%; text-align: left; font-family: 'Work Sans', sans-serif; transition: all 0.15s; }
+    .kk-subj-toggle:hover { border-color: #d4b8d0; }
+    .kk-subj-arrow { font-size: 10px; color: #bbb0a8; margin-left: auto; transition: transform 0.2s; }
+    .kk-subj-arrow.open { transform: rotate(180deg); }
+    .kk-subj-body { display: none; background: #fff; border: 1.5px solid #EDE8E0; border-top: none; border-radius: 0 0 8px 8px; padding: 16px; margin-bottom: 12px; }
+    .kk-subj-body.open { display: block; }
+    .kk-formula-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .kk-fi { background: #F9F5EF; border-radius: 7px; border: 1px solid #EDE8E0; padding: 10px 13px; }
+    .kk-fi-label { font-size: 9px; font-weight: 700; color: #bbb0a8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .kk-fi-formula { font-size: 12px; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; font-family: monospace; }
+    .kk-fi-ex { font-size: 11px; color: #9a9088; font-style: italic; }
+    .kk-subj-tip { font-size: 12px; color: #9a9088; line-height: 1.65; padding-top: 10px; border-top: 1px solid #EDE8E0; }
+    .kk-input-section { margin-top: 14px; }
+    .kk-input-label { font-size: 10px; font-weight: 700; color: #9a9088; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 7px; }
+    .kk-input-wrap { position: relative; }
+    .kk-input { width: 100%; font-size: 14px; padding: 11px 75px 11px 14px; border-radius: 8px; border: 1.5px solid #EDE8E0; background: #fff; color: #1a1a1a; font-family: 'Work Sans', sans-serif; transition: border-color 0.15s; }
+    .kk-input::placeholder { color: #ccc3bc; }
+    .kk-input:focus { outline: none; border-color: #e579df; box-shadow: 0 0 0 3px rgba(229,121,223,0.12); }
+    .kk-counter { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #bbb0a8; font-family: monospace; pointer-events: none; }
+    .kk-counter.warn { color: #d4a017; }
+    .kk-counter.over { color: #c0392b; }
+    .kk-hint { font-size: 11px; color: #bbb0a8; margin-top: 5px; }
+    .kk-save-note { display: flex; align-items: flex-start; gap: 8px; background: #fff; border: 1.5px solid #EDE8E0; border-radius: 7px; padding: 10px 12px; margin-top: 8px; }
+    .kk-save-text { font-size: 11px; color: #7a7068; line-height: 1.6; }
+    .kk-save-text strong { color: #1a1a1a; font-weight: 600; }
+    .kk-check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .kk-crow { display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px; border-radius: 8px; border: 1.5px solid #EDE8E0; cursor: pointer; transition: all 0.15s; background: #fff; }
+    .kk-crow:hover { border-color: #d4b8d0; background: #fdf8fd; }
+    .kk-crow.done { border: 2px solid #1a8a5a; background: #f0faf5; }
+    .kk-cbox { width: 17px; height: 17px; min-width: 17px; border-radius: 4px; border: 1.5px solid #ccc; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.15s; }
+    .kk-cbox.done { background: #1a8a5a; border-color: #1a8a5a; }
+    .kk-ctext { font-size: 12px; color: #4a4540; line-height: 1.45; margin-bottom: 3px; }
+    .kk-crow.done .kk-ctext { color: #0d5c3a; font-weight: 500; }
+    .kk-crow.done .kk-atimepill { background: #d4f0e4; color: #0d5c3a; }
+    .kk-send { background: #1e1b2e; border-radius: 10px; padding: 32px 28px; text-align: center; }
+    .kk-send-eyebrow { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: #e579df; font-weight: 700; margin-bottom: 12px; }
+    .kk-send-line1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; font-style: italic; color: #ffffff; display: block; line-height: 1.15; }
+    .kk-send-line2 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; font-style: italic; color: #e579df; display: block; line-height: 1.15; margin-bottom: 14px; }
+    .kk-send-body { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.7; max-width: 380px; margin: 0 auto 20px; }
+    .kk-send-rules { display: flex; flex-direction: column; gap: 8px; max-width: 380px; margin: 0 auto 28px; text-align: left; }
+    .kk-send-rule { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.55; display: flex; gap: 10px; }
+    .kk-rmark { color: #e579df; font-weight: 700; flex-shrink: 0; }
+    .kk-send-btns { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+    /* ── Pitch block ── */
+    .kk-pitch {
+      background: #1e1b2e;
+      border-radius: 16px;
+      padding: 36px 32px;
+      text-align: center;
+      margin-top: 16px;
+    }
+    .kk-pitch-eyebrow {
+      font-size: 9px; letter-spacing: 5px; text-transform: uppercase;
+      color: #e579df; font-weight: 700; margin-bottom: 16px;
+    }
+    .kk-pitch-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px; font-weight: 800; line-height: 1.2;
+      color: #fff; margin-bottom: 6px;
+    }
+    .kk-pitch-heading em {
+      font-style: italic; color: #e579df;
+    }
+    .kk-pitch-sub {
+      font-size: 13px; color: rgba(255,255,255,0.55);
+      line-height: 1.7; max-width: 420px; margin: 0 auto 24px;
+    }
+    .kk-pitch-tools {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 8px; margin-bottom: 28px;
+    }
+    .kk-pitch-tool {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50px; padding: 6px 14px;
+      font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 500;
+    }
+    .kk-pitch-divider {
+      border: none; border-top: 1px solid rgba(255,255,255,0.1);
+      margin: 0 auto 24px; max-width: 320px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .kk-pitch-btn {
+      display: inline-block;
+      background: linear-gradient(270deg, #e579df, #a855f7, #ec4899, #e579df);
+      background-size: 300% 300%;
+      animation: shimmer 4s ease infinite;
+      color: #fff;
+      text-decoration: none; border-radius: 50px;
+      padding: 15px 36px; font-size: 14px; font-weight: 700;
+      font-family: 'Work Sans', sans-serif;
+      transition: opacity 0.15s; margin-bottom: 12px;
+      box-shadow: 0 4px 24px rgba(229,121,223,0.35);
+    }
+    .kk-pitch-btn:hover { opacity: 0.9; }
+    .kk-pitch-fine {
+      font-size: 11px; color: rgba(255,255,255,0.35);
+      font-style: italic;
+    }
+
+    /* ── Footer ── */
+    .kk-footer {
+      margin-top: 32px;
+      padding: 24px 0 8px;
+      border-top: 2px solid #e579df;
+      text-align: center;
+    }
+    .kk-footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+    .kk-footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .kk-footer-links a {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #5a5048;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .kk-footer-links a:hover { color: #e579df; }
+    .kk-footer-links .kk-footer-sep {
+      font-size: 11px;
+      color: #d4cfc9;
+    }
+    .kk-footer-copy {
+      font-size: 10px;
+      color: #bbb0a8;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 12px 8px 40px; }
+      .kk-type-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .kk-fw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .kk-angle-grid { grid-template-columns: 1fr; }
+      .kk-check-grid { grid-template-columns: 1fr; }
+      .kk-head { padding: 24px 20px 20px; }
+      .kk-body { padding: 0 20px 20px; }
+      .kk-above { padding: 20px 20px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="kk-page">
+
+    <div class="kk">
+      <div class="kk-head">
+        <div class="kk-eyebrow">Email Send-It Tool</div>
+        <span class="kk-title-line1">Stop overthinking.</span>
+        <span class="kk-title-line2">Start sending.</span>
+        <div class="kk-sub">Pick a type, find your angle, write it, send it.</div>
+      </div>
+
+      <div class="kk-above">
+        <div class="kk-prog-wrap">
+          <div class="kk-prog-header">
+            <span class="kk-prog-label">Your Progress</span>
+            <span class="kk-prog-count" id="prog-count">0 / 4</span>
+          </div>
+          <div class="kk-prog-bg"><div class="kk-prog-fill" id="prog"></div></div>
+        </div>
+        <div class="kk-prog-context">
+          <div class="kk-prog-context-label">What is this?</div>
+          <div class="kk-prog-context-text">This progress bar tracks how far through the tool you are. It updates automatically as you work through each step – pick a type, choose your angle, write your email, and tick off your confidence checks. Four steps to send.</div>
+        </div>
+      </div>
+
+      <div class="kk-body">
+        <div class="kk-sec">
+          <div class="kk-label">Step 1 – choose your email type <span class="kk-label-meta">~ 1 min</span></div>
+          <div class="kk-type-grid" id="type-grid"></div>
+        </div>
+
+        <div class="kk-sec kk-hidden" id="angles-sec">
+          <div class="kk-label">Step 2 – pick your angle <span class="kk-label-meta">~ 1 min</span></div>
+          <div class="kk-angle-grid" id="angle-grid"></div>
+          <div class="kk-nudge">
+            <div style="font-size:15px;margin-top:1px">💡</div>
+            <div class="kk-nudge-text"><strong>Not sure which to pick?</strong> Think about the last conversation you had with a client or someone in your community. What did they say? What did they need? That's probably your angle.</div>
+          </div>
+          <button class="kk-next-btn" id="next-btn" disabled onclick="revealFw()">Build my email →</button>
+        </div>
+
+        <div class="kk-sec kk-hidden" id="fw-sec">
+          <div class="kk-label">Step 3 – write your email <span class="kk-label-meta" id="time-label">~ 10–15 min</span></div>
+          <div class="kk-guide">
+            <div class="kk-guide-intro">Open your email platform and write using the structure below – <strong>one section at a time.</strong> Aim for 150–250 words total. Toggle the example below if you need a reference.</div>
+            <div class="kk-fw-grid" id="fw-grid"></div>
+            <div class="kk-guide-tips"><strong>A few things to remember:</strong> don't open with "I hope this finds you well." Keep paragraphs to 2–3 sentences. Sign off like a human. One idea, one email – resist the urge to add more.</div>
+          </div>
+          <div class="kk-btns-row">
+            <button class="kk-ghost-pink" id="ex-btn" onclick="toggleEx()"></button>
+          </div>
+          <div class="kk-ex-box" id="ex-box"></div>
+          <button class="kk-subj-toggle" id="subj-btn" onclick="toggleSubj()">
+            ✏️ Subject line formulas
+            <span class="kk-subj-arrow" id="subj-arrow">▼</span>
+          </button>
+          <div class="kk-subj-body" id="subj-body"></div>
+          <div class="kk-input-section">
+            <div class="kk-input-label">Your subject line</div>
+            <div class="kk-input-wrap">
+              <input class="kk-input" id="subj-input" type="text" placeholder="Write it here before you forget..." maxlength="80" oninput="updateCounter()" />
+              <span class="kk-counter" id="kk-counter">0 / 50</span>
+            </div>
+            <div class="kk-hint" id="kk-hint">Aim for under 50 characters – short subject lines get more opens on mobile.</div>
+            <div class="kk-save-note">
+              <div style="font-size:14px;margin-top:1px">💡</div>
+              <div class="kk-save-text"><strong>Your subject line is your open rate.</strong> One line, one promise – if you're tempted to use a slash or "and", that's two emails. The best subject lines are specific, a little curious, and sound like something a real person wrote.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kk-sec kk-hidden" id="checks-sec">
+          <div class="kk-label">Step 4 – confidence check <span class="kk-label-meta">~ 2 min</span></div>
+          <div class="kk-check-grid" id="check-grid"></div>
+        </div>
+
+        <div class="kk-sec kk-hidden" id="send-sec">
+          <div class="kk-send">
+            <div class="kk-send-eyebrow">You're ready</div>
+            <span class="kk-send-line1">Now go</span>
+            <span class="kk-send-line2">hit send.</span>
+            <div class="kk-send-body">An imperfect email in the inbox beats a perfect draft in Notes every single time. Your list is waiting.</div>
+            <div class="kk-send-rules">
+              <div class="kk-send-rule"><span class="kk-rmark">→</span> It doesn't need to be perfect. It needs to be real.</div>
+              <div class="kk-send-rule"><span class="kk-rmark">→</span> One send won't make or break your list. Consistency will.</div>
+              <div class="kk-send-rule"><span class="kk-rmark">→</span> People unsubscribe from normal emails too. That's just how it works.</div>
+              <div class="kk-send-rule"><span class="kk-rmark">→</span> The version of you who just hit send is the one who builds the list.</div>
+            </div>
+            <div class="kk-send-btns">
+              <button id="copy-btn" onclick="copyPlan()"
+                style="font-family:'Work Sans',sans-serif;font-size:14px;font-weight:700;color:#e579df;background:#ffffff;border:none;border-radius:50px;padding:14px 36px;cursor:pointer;display:inline-block;min-width:200px;">
+                Copy my email plan
+              </button>
+              <button onclick="resetAll()"
+                style="font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;color:#ffffff;background:transparent;border:2px solid #ffffff;border-radius:50px;padding:12px 30px;cursor:pointer;display:inline-block;min-width:160px;">
+                Start over
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="kk-community kk-hidden" id="community-sec">
+          <div class="kk-community-intro">Once you've hit send, <strong>come share your win with us.</strong> Whether it's your first email in months or you finally nailed your subject line – we want to hear it. The community is here to celebrate every send, big or small.</div>
+          <a href="https://www.skool.com/email-marketing-skool/about" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;background:#e579df;color:#ffffff;text-decoration:none;border-radius:50px;padding:13px 28px;font-size:13px;font-weight:700;font-family:'Work Sans',sans-serif;cursor:pointer;transition:background 0.15s;">Join the Community → Share Your Win</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.kk-page -->
+
+  <!-- Pitch block -->
+  <div class="kk-page">
+    <div class="kk-pitch">
+      <div class="kk-pitch-eyebrow">Want more tools like this?</div>
+      <div class="kk-pitch-heading">This is just one of many<br><em>inside the community.</em></div>
+      <p class="kk-pitch-sub">Every month, 1,100+ business owners get a brand new done-for-you email tool – templates, frameworks, and step-by-step guides so you can stop overthinking and just send. For just $9/month.</p>
+      <div class="kk-pitch-tools">
+        <span class="kk-pitch-tool">📖 Subject Line Studio</span>
+        <span class="kk-pitch-tool">💰 Launch Calculator</span>
+        <span class="kk-pitch-tool">🗺️ Lead Magnet Launch Map</span>
+        <span class="kk-pitch-tool">⚡ Visibility Tracker</span>
+        <span class="kk-pitch-tool">🙏 Email List Building Affirmation Cards</span>
+        <span class="kk-pitch-tool">🔥 & so much more</span>
+      </div>
+      <hr class="kk-pitch-divider" />
+      <a href="https://www.skool.com/email-marketing-skool/about" target="_blank" rel="noopener noreferrer" class="kk-pitch-btn">Join the community for $9/month →</a>
+      <div class="kk-pitch-fine">Cancel anytime. No lock-in.</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="kk-page">
+    <div class="kk-footer">
+      <div class="kk-footer-logo">Kylie Kelly</div>
+      <div class="kk-footer-links">
+        <a href="https://kyliekelly.com" target="_blank" rel="noopener noreferrer">kyliekelly.com</a>
+        <span class="kk-footer-sep">·</span>
+        <a href="https://kyliekelly.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy &amp; Terms</a>
+      </div>
+      <div class="kk-footer-copy">© 2026 Kylie Kelly · ABN 76 205 632 387 · All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    var TYPES = [
+      {id:"connection",label:"Connection",icon:"💛",tagline:"Share a story, moment, or lesson that lets your reader feel like they actually know you",time:"~15 min",fwTimes:[2,5,3,1],
+       angles:[{text:"Something that happened in your business this week",time:"~10 min"},{text:"A moment from your personal life",time:"~10 min"},{text:"A lesson you learned the hard way",time:"~15 min"},{text:"Behind the scenes of what you're creating",time:"~10 min"},{text:"A monthly recap with a personal snippet",time:"~20 min"},{text:"A reflection you've been sitting with",time:"~15 min"}],
+       fw:[{s:"Hook",h:"Open mid-story or with a relatable moment. Skip 'I hope you had a great week'.",t:"~2 min"},{s:"The story",h:"What happened, what you felt, what shifted. Real, not polished.",t:"~5 min"},{s:"The thread",h:"Connect it back to them – what does this mean for your reader?",t:"~3 min"},{s:"Nudge",h:"Ask them to reply, reflect, or nod along. No pitch needed.",t:"~1 min"}],
+       subjects:[{label:"The honest confession",formula:"I [embarrassing or surprising thing]",ex:"I almost cancelled the whole thing"},{label:"The relatable moment",formula:"When [universal experience]...",ex:"When you realise you've been doing it backwards..."},{label:"The direct question",formula:"Did [relatable thing] happen to you too?",ex:"Did you ever feel like you were the only one struggling?"},{label:"The quiet reflection",formula:"[Simple observation about work or life]",ex:"Some weeks just teach you things"}],
+       subjTip:"Connection subject lines work best when they feel like a text from a friend – casual, specific, a little unpolished. Avoid anything that sounds like a newsletter headline.",
+       exSub:"I almost didn't send this",
+       exBody:"Hey [first name],\n\nI sat on this email for three days. Kept telling myself it wasn't ready. That I needed to say it better.\n\nSound familiar?\n\nHere's what I've noticed: the emails I overthink the most are the ones that need to be sent the most. The ones where I'm scared of being too real, too honest, or just... too much.\n\nAnd every single time I finally hit send? Those are the ones that get the most replies.\n\nSo here I am, hitting send.\n\nWhat have you been sitting on lately? Hit reply and tell me.\n\n[Your name]"},
+      {id:"teaching",label:"Teaching",icon:"📖",tagline:"Teach one thing your reader can use right now – a tip, a reframe, or a mistake to avoid",time:"~20 min",fwTimes:[2,8,3,1],
+       angles:[{text:"A tip you repeat with clients constantly",time:"~15 min"},{text:"A common mistake you see in your space",time:"~20 min"},{text:"A simple framework or process you use",time:"~20 min"},{text:"Something you recently helped a client figure out",time:"~15 min"},{text:"A mindset shift that changed how you work",time:"~15 min"},{text:"A question you get asked all the time – answered",time:"~15 min"}],
+       fw:[{s:"Hook",h:"Lead with the problem or the result. 'Most people get this wrong...'",t:"~2 min"},{s:"The idea",h:"One thing only. If you want to add more, save it for next time.",t:"~8 min"},{s:"Why it matters",h:"What changes when they apply this? What stays broken if they don't?",t:"~3 min"},{s:"Soft CTA",h:"An invitation, not a push. 'If you want to go deeper, here's where...'",t:"~1 min"}],
+       subjects:[{label:"The mistake hook",formula:"Why [common thing] isn't working (and what does)",ex:"Why posting daily isn't growing your list"},{label:"The number promise",formula:"The [number] [thing] that [result]",ex:"The one sentence that gets more replies"},{label:"The reframe",formula:"[Thing everyone does] is [surprising truth]",ex:"Your email list is not a marketing tool"},{label:"The direct tip",formula:"How to [specific result] without [painful thing]",ex:"How to write emails without overthinking every word"}],
+       subjTip:"Teaching subject lines should hint at the value without giving it all away. Lead with the problem your reader is feeling, not the solution you're about to share.",
+       exSub:"The reason your emails aren't getting replies",
+       exBody:"Hey [first name],\n\nHere's something I see all the time: really smart business owners writing emails that are technically fine but feel like they were written for everyone.\n\nWhen you write for everyone, you reach no one.\n\nThe fix is almost annoyingly simple: write like you're emailing one specific person. Not your whole list – one person.\n\nWhen you do that? The subject line gets sharper. The story gets more specific. The CTA actually lands.\n\nTry it with your next email.\n\n[Your name]"},
+      {id:"invitation",label:"Invitation",icon:"🎟️",tagline:"Invite your audience into your free or paid offers – without the hard sell",time:"~20 min",fwTimes:[3,5,3,2],
+       angles:[{text:"Inviting them into an offer you have open",time:"~20 min"},{text:"A hand-raiser asking who wants more info",time:"~10 min"},{text:"A free resource or workshop they might have missed",time:"~10 min"},{text:"A discovery call or audit you offer",time:"~15 min"},{text:"A client case study with a soft invite at the end",time:"~20 min"},{text:"A community or membership they can join",time:"~15 min"}],
+       fw:[{s:"Hook",h:"Lead with the problem your offer solves. Make them feel seen.",t:"~3 min"},{s:"The offer",h:"Clear and simple. What is it, what's included, what does it cost?",t:"~5 min"},{s:"Why now",h:"A real reason – deadline, limited spots, or 'I'm focused on this now'.",t:"~3 min"},{s:"The ask",h:"One action only. Reply, click, or book. No multiple options.",t:"~2 min"}],
+       subjects:[{label:"The direct question",formula:"Are you still [problem they have]?",ex:"Are you still guessing what to send your list?"},{label:"The open door",formula:"[Thing] is open (and here's who it's for)",ex:"The incubator is open (and here's who it's for)"},{label:"The hand raiser",formula:"Quick question about [relevant topic]",ex:"Quick question about your email list"},{label:"The social proof lead",formula:"[Client type] just [result] – here's how",ex:"She signed 3 clients from one email – here's how"}],
+       subjTip:"Invitation subject lines that feel personal convert better than ones that feel like announcements. A direct question or a 'quick question' opener gets the open – then the email does the rest.",
+       exSub:"Quick question for you",
+       exBody:"Hey [first name],\n\nI want to ask something direct.\n\nAre you building an email list that actually makes you money, or does it just sit there while you post on Instagram hoping someone notices?\n\nIf it's the second one – that's exactly what I help with.\n\nI've got [X spots] for coaches and service providers who are done overthinking and ready to actually use their list.\n\nIf that sounds like you, hit reply and say \"tell me more.\" I'll send you the details personally.\n\n[Your name]"},
+      {id:"spotlight",label:"Spotlight",icon:"✨",tagline:"Point your list to a resource, episode, tool, or offer they need to know about",time:"~10 min",fwTimes:[2,3,3,1],
+       angles:[{text:"A podcast episode or blog post they'd love",time:"~8 min"},{text:"A freebie (not everyone came through the same door)",time:"~8 min"},{text:"A tool or software you genuinely use and love",time:"~10 min"},{text:"A collaboration, summit, or feature you're part of",time:"~10 min"},{text:"A previous training or resource from your vault",time:"~8 min"},{text:"An affiliate offer or recommendation",time:"~10 min"}],
+       fw:[{s:"Hook",h:"Why are you sending this right now? Give it a moment or a theme.",t:"~2 min"},{s:"What it is",h:"Describe it in one or two sentences. What will they get?",t:"~3 min"},{s:"Why they care",h:"Connect it to something they're probably feeling right now.",t:"~3 min"},{s:"The link",h:"One clear link. Don't bury it. Don't give them six options.",t:"~1 min"}],
+       subjects:[{label:"The personal rec",formula:"The [thing] I keep coming back to",ex:"The podcast episode I keep recommending to everyone"},{label:"The relevant moment",formula:"If you're [feeling or situation], read this",ex:"If you're stuck on what to post, read this"},{label:"The in-case-you-missed",formula:"In case you missed [thing]",ex:"In case you missed this one"},{label:"The simple share",formula:"[Thing]: [one-line description]",ex:"This episode: how to write emails faster"}],
+       subjTip:"Spotlight subject lines should feel like a warm recommendation from a friend, not a marketing blast. The more specific and personal, the better.",
+       exSub:"This one's for the overthinkers",
+       exBody:"Hey [first name],\n\nIf you've been staring at a blank screen trying to figure out what to email your list – this one's for you.\n\nI put together a full training on the 4 types of emails you can rotate through so you never have to think 'what do I even send?' again.\n\nIt's [free / inside X / linked below] and it's probably the most practical thing I've put out on email marketing.\n\n[Your link here]\n\nLet me know what you think.\n\n[Your name]"}
+    ];
+
+    var CHECKS = [
+      {text:"Does it sound like you – not a robot, not a template?",time:"~30 sec"},
+      {text:"Is there one clear thing for them to do or feel?",time:"~30 sec"},
+      {text:"Does your subject line make someone curious to open?",time:"~30 sec"},
+      {text:"Is it short enough that you'd read it yourself?",time:"~30 sec"}
+    ];
+
+    var selType = null, selAngle = null, checks = {}, showEx = false, showSubj = false;
+
+    function updateProg() {
+      var p = 0, s = 0;
+      if (selType) { p = 25; s = 1; }
+      if (selAngle !== null) { p = 50; s = 2; }
+      var d = Object.values(checks).filter(Boolean).length;
+      if (d > 0) { p = 75; s = 3; }
+      if (d === CHECKS.length) { p = 100; s = 4; }
+      document.getElementById('prog').style.width = p + '%';
+      document.getElementById('prog-count').textContent = s + ' / 4';
+    }
+
+    function totalTime() {
+      if (!selType || selAngle === null) return null;
+      var t = TYPES.find(function(x) { return x.id === selType; });
+      var am = parseInt(t.angles[selAngle].time.replace('~','').replace(' min',''));
+      return am + t.fwTimes.reduce(function(a, b) { return a + b; }, 0) + 2;
+    }
+
+    function show(id) { document.getElementById(id).classList.remove('kk-hidden'); }
+    function hide(id) { document.getElementById(id).classList.add('kk-hidden'); }
+
+    function renderTypes() {
+      document.getElementById('type-grid').innerHTML = TYPES.map(function(t) {
+        return '<div class="kk-tcard' + (selType === t.id ? ' sel' : '') + '" onclick="pickType(\'' + t.id + '\')">' +
+          '<div class="kk-ticon">' + t.icon + '</div><div class="kk-tname">' + t.label + '</div>' +
+          '<div class="kk-ttag">' + t.tagline + '</div><div class="kk-ttime">&#9201; ' + t.time + '</div></div>';
+      }).join('');
+    }
+
+    function renderAngles() {
+      var t = TYPES.find(function(x) { return x.id === selType; });
+      document.getElementById('angle-grid').innerHTML = t.angles.map(function(a, i) {
+        return '<div class="kk-aitem' + (selAngle === i ? ' sel' : '') + '" onclick="pickAngle(' + i + ')">' +
+          '<div class="kk-aradio' + (selAngle === i ? ' sel' : '') + '"><div class="kk-adot"></div></div>' +
+          '<div class="kk-acontent"><div class="kk-atext">' + a.text + '</div><div class="kk-atimepill">&#9201; ' + a.time + '</div></div></div>';
+      }).join('');
+      document.getElementById('next-btn').disabled = (selAngle === null);
+    }
+
+    function renderFw() {
+      var t = TYPES.find(function(x) { return x.id === selType; });
+      var tot = totalTime();
+      document.getElementById('time-label').innerHTML = tot ? '~ <span style="color:#e579df;font-weight:700">' + tot + ' min</span> total' : '~ 10–15 min';
+      document.getElementById('fw-grid').innerHTML = t.fw.map(function(f) {
+        return '<div class="kk-fw-card"><div class="kk-fw-top"><div class="kk-fw-tag">' + f.s + '</div><div class="kk-fw-time">&#9201; ' + f.t + '</div></div><div class="kk-fw-hint">' + f.h + '</div></div>';
+      }).join('');
+      document.getElementById('ex-btn').textContent = showEx ? 'Hide example email' : 'See an example ' + t.label.toLowerCase() + ' email';
+      document.getElementById('ex-box').innerHTML = '<div class="kk-ex-slabel">Subject line</div><div class="kk-ex-stext">' + t.exSub + '</div><div class="kk-ex-body">' + t.exBody + '</div><div class="kk-ex-note">Not polished. On purpose. Good enough beats perfect every time.</div>';
+      document.getElementById('ex-box').className = 'kk-ex-box' + (showEx ? ' open' : '');
+      var formulas = t.subjects.map(function(s) { return '<div class="kk-fi"><div class="kk-fi-label">' + s.label + '</div><div class="kk-fi-formula">' + s.formula + '</div><div class="kk-fi-ex">e.g. "' + s.ex + '"</div></div>'; }).join('');
+      document.getElementById('subj-body').innerHTML = '<div class="kk-formula-list">' + formulas + '</div><div class="kk-subj-tip">' + t.subjTip + '</div>';
+      document.getElementById('subj-body').className = 'kk-subj-body' + (showSubj ? ' open' : '');
+      document.getElementById('subj-arrow').className = 'kk-subj-arrow' + (showSubj ? ' open' : '');
+    }
+
+    function renderChecks() {
+      document.getElementById('check-grid').innerHTML = CHECKS.map(function(c, i) {
+        var done = checks[i];
+        return '<div class="kk-crow' + (done ? ' done' : '') + '" onclick="toggleCheck(' + i + ')">' +
+          '<div class="kk-cbox' + (done ? ' done' : '') + '">' +
+            (done ? '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '') +
+          '</div><div class="kk-acontent"><div class="kk-ctext">' + c.text + '</div><div class="kk-atimepill">&#9201; ' + c.time + '</div></div></div>';
+      }).join('');
+    }
+
+    function pickType(id) {
+      selType = id; selAngle = null; showEx = false; showSubj = false; checks = {};
+      renderTypes(); renderAngles();
+      show('angles-sec'); hide('fw-sec'); hide('checks-sec'); hide('send-sec');
+      updateProg();
+      setTimeout(function() { document.getElementById('angles-sec').scrollIntoView({behavior:'smooth', block:'nearest'}); }, 50);
+    }
+
+    function pickAngle(i) { selAngle = i; renderAngles(); updateProg(); }
+
+    function revealFw() {
+      if (selAngle === null) return;
+      renderFw(); show('fw-sec'); show('checks-sec'); renderChecks(); updateProg();
+      setTimeout(function() { document.getElementById('fw-sec').scrollIntoView({behavior:'smooth', block:'nearest'}); }, 50);
+    }
+
+    function toggleCheck(i) {
+      checks[i] = !checks[i]; renderChecks();
+      if (Object.values(checks).filter(Boolean).length === CHECKS.length) {
+        show('send-sec'); show('community-sec');
+        setTimeout(function() { document.getElementById('send-sec').scrollIntoView({behavior:'smooth', block:'nearest'}); }, 50);
+      }
+      updateProg();
+    }
+
+    function toggleEx() { showEx = !showEx; renderFw(); }
+    function toggleSubj() { showSubj = !showSubj; renderFw(); }
+
+    function updateCounter() {
+      var len = document.getElementById('subj-input').value.length;
+      var c = document.getElementById('kk-counter'), h = document.getElementById('kk-hint');
+      c.textContent = len + ' / 50';
+      c.className = 'kk-counter' + (len > 65 ? ' over' : len > 50 ? ' warn' : '');
+      h.textContent = len > 65 ? 'This may get cut off on mobile. See if you can make it punchier.' :
+                      len > 50 ? 'Getting a little long – try trimming it down.' :
+                      'Aim for under 50 characters – short subject lines get more opens on mobile.';
+    }
+
+    function copyPlan() {
+      var t = TYPES.find(function(x) { return x.id === selType; });
+      var lines = ['MY EMAIL PLAN', '─────────────────────',
+        'Type: ' + t.label + ' email',
+        'Angle: ' + (selAngle !== null ? t.angles[selAngle].text : 'not selected'),
+        'Subject line: ' + (document.getElementById('subj-input').value || '(not written yet)'),
+        'Estimated time: ~' + (totalTime() || '?') + ' min', '', 'STRUCTURE'];
+      t.fw.forEach(function(f) { lines.push('  ' + f.s + ': ' + f.h); });
+      lines.push('', "Now close this tab and go write it. You've got this.");
+      var text = lines.join('\n');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(showCopied);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta); showCopied();
+      }
+    }
+
+    function showCopied() {
+      var btn = document.getElementById('copy-btn');
+      var orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.style.background = '#4ade80';
+      btn.style.color = '#111';
+      setTimeout(function() { btn.textContent = orig; btn.style.background = '#ffffff'; btn.style.color = '#e579df'; }, 2500);
+    }
+
+    function resetAll() {
+      selType = null; selAngle = null; checks = {}; showEx = false; showSubj = false;
+      document.getElementById('subj-input').value = ''; updateCounter(); renderTypes();
+      ['angles-sec', 'fw-sec', 'checks-sec', 'send-sec', 'community-sec'].forEach(hide);
+      updateProg();
+      document.querySelector('.kk').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    renderTypes();
+  </script>
+</body>
+</html>
